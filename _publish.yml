@@ -1,0 +1,4 @@
+- source: Recipes.qmd
+  quarto-pub:
+    - id: abada9a5-4cad-44a2-b986-0c960362d730
+      url: 'https://wcarcamo.quarto.pub/lets-get-cooking'
