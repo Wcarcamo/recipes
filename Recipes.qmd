@@ -1,0 +1,128 @@
+---
+title: "Let's Get Cooking!"
+format:
+  html:
+    self-contained: true
+    page-layout: custom
+    css: static/style.css
+execute: 
+  echo: false
+  warning: false
+---
+
+```{ojs}
+import { aq, op } from "@uwdata/arquero"
+```
+
+```{ojs}
+viewof search_filter = Inputs.search(data, {columns: ["Recipe", "Ingredient"]})
+```
+
+:::{.grid}
+
+:::{.g-col-12 .g-col-md-4 .g-col-lg-4}
+## Recipes
+
+```{ojs}
+viewof recipe = Inputs.table(
+  recipes, {
+    rows: 30,
+    multiple: false
+  }
+)
+```
+:::
+
+:::{.g-col-12 .g-col-md-8 .g-col-lg-4}
+## Ingredients
+
+```{ojs}
+{
+  if (recipe === null) {
+    return htl.html`<p>Select a Recipe!</p>`
+  } else {
+    return Inputs.table(
+      ingredients
+      .filter(aq.escape(d => d.Recipe === recipe.Recipe))
+      .select(aq.not('Recipe')), 
+      {rows: 30}
+    ) 
+  }
+}
+```
+:::
+
+:::{.g-col-12 .g-col-lg-4}
+## Steps
+
+```{ojs}
+{
+  if (recipe === null) {
+    return htl.html`<p>Select a Recipe!</p>`
+  } else {
+    return Inputs.table(
+      step
+      .filter(aq.escape(d => d.Recipe === recipe.Recipe))
+      .select(aq.not('Recipe')), 
+      {rows: 30}
+    ) 
+  }
+}
+```
+
+:::
+
+:::
+
+```{ojs}
+data = FileAttachment("data/Ingredients.csv").csv({ typed: true })
+```
+
+```{ojs}
+steps = FileAttachment("data/Steps.csv").csv({ typed: true })
+```
+
+```{ojs}
+ingredients = aq.from(data);
+```
+
+```{ojs}
+step = aq.from(steps);
+```
+
+```{ojs}
+filtered_recipes = aq.from(search_filter)
+```
+
+```{ojs}
+recipes = filtered_recipes
+  .select('Recipe')
+  .dedupe()
+  .objects()
+```
+
+```{ojs}
+//| eval: false
+// Unsure why this didn't work...
+displayTable = (table) => {
+  let tab;
+  switch ('${table}') {
+    case `ingredients`:
+      tab = aq.from(ingredients);
+      break;
+    case `step`:
+      tab = aq.from(steps);
+  }
+
+  if (recipe === null) {
+    return htl.html`<p>Select a Recipe!</p>`
+  } else {
+    return Inputs.table(
+      tab
+      .filter(aq.escape(d => d.Recipe === recipe.Recipe))
+      .select(aq.not('Recipe')), 
+      {rows: 30}
+    ) 
+  }
+}
+```
